@@ -1,0 +1,13 @@
+{
+  "name": "Daily English — Day 1",
+  "short_name": "Daily English",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
