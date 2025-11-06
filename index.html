@@ -1,55 +1,153 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Day 2 — Point Read</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Daily English — Day 2 (15 words)</title>
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial;max-width:820px;margin:20px auto;color:#0f172a;}
-.card{border:1px solid #e6eef8;border-radius:12px;padding:18px;margin:12px 0;}
-.word{font-size:32px;font-weight:700;}
-.ipa{font-family:Arial,Helvetica,sans-serif;color:#475569;}
-.controls{display:flex;gap:8px;margin-top:12px;}
-button{padding:8px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;}
+  :root{--blue:#2563eb;--muted:#64748b;--card:#fff;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial; background:#f8fafc;margin:20px;padding:0;color:#0f172a;}
+  .wrap{max-width:880px;margin:18px auto;}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .logo{width:48px;height:48px;border-radius:10px;background:#e6eef8;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue);}
+  h1{font-size:20px;margin:0;}
+  .card{background:var(--card);border-radius:14px;padding:28px;box-shadow:0 1px 0 rgba(2,6,23,0.04);border:1px solid #eef2f7;}
+  .word{font-size:42px;font-weight:800;margin-bottom:6px;}
+  .ipa{color:#475569;margin-bottom:12px;font-family:Arial,Helvetica,sans-serif;}
+  .cn{color:#0f172a;margin-bottom:14px;font-size:18px;}
+  .sentence{color:#0f172a;font-size:16px;margin-bottom:18px;}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;}
+  button{border:0;background:#fff;padding:10px 14px;border-radius:10px;border:1px solid #e6eef8;cursor:pointer;}
+  button.primary{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 6px 16px rgba(37,99,235,0.12);}
+  .muted{color:var(--muted);margin-top:12px;font-size:13px;}
+  .small{font-size:13px;color:var(--muted);}
+  .controls .iconbtn{display:inline-flex;align-items:center;gap:8px;}
+  .top-controls{display:flex;gap:10px;align-items:center;margin-bottom:10px;}
+  .right{margin-left:auto;display:flex;gap:8px;}
 </style>
 </head>
 <body>
-<h1>Day 2 — Point Read (15 words)</h1>
-<div id="card" class="card">
-  <div class="word" id="word">window</div>
-  <div class="ipa" id="ipa">/ˈwɪn.doʊ/</div>
-  <div class="cn" id="cn">窗户</div>
-  <div class="en" id="en">Please open the window.</div>
-  <div class="controls">
-    <button id="playWord">🔊 Word</button>
-    <button id="playSentence">🔊 Sentence</button>
-    <button id="next">➡️ Next</button>
-  </div>
-  <div class="muted" style="margin-top:8px;color:#64748b">Tip: Add to home screen on iPad/iPhone for app-like use.</div>
+<div class="wrap">
+  <header>
+    <div class="logo">EN</div>
+    <div>
+      <h1>Daily English 🔊 — Day 2 (15 words)</h1>
+      <div class="small">Tap the buttons to hear Word / Sentence. Use Next to move on.</div>
+    </div>
+  </header>
+
+  <main class="card" role="main" aria-label="word card">
+    <div id="cardContent">
+      <div class="word" id="word">window</div>
+      <div class="ipa" id="ipa">/ˈwɪn.doʊ/</div>
+      <div class="cn" id="cn">窗户</div>
+      <div class="sentence" id="sentence">Please open the window.</div>
+    </div>
+
+    <div style="height:8px"></div>
+    <div class="controls">
+      <button id="playWord" class="iconbtn">🔊 Word</button>
+      <button id="playSentence" class="iconbtn">🔊 Sentence</button>
+      <button id="toggleCn" class="iconbtn">👁️ Hide/Show 中文</button>
+      <button id="nextBtn" class="primary">➡️ Next</button>
+      <button id="shuffle" class="iconbtn">🔀 Shuffle</button>
+    </div>
+
+    <div class="muted">Tip: Add to home screen on iPad/iPhone for app-like use (iOS: Share → Add to Home Screen).</div>
+  </main>
 </div>
+
 <script>
 const data = [
-["window","/ˈwɪn.doʊ/","窗户","Please open the window."],
-["car","/kɑːr/","汽车","My father drives a new car."],
-["bus","/bʌs/","公共汽车","We go to school by bus."],
-["street","/striːt/","街道","There are many shops on this street."],
-["shop","/ʃɑːp/","商店","Let’s go to the shop and buy some fruit."],
-["money","/ˈmʌ.ni/","钱","I don’t have enough money."],
-["cake","/keɪk/","蛋糕","I made a chocolate cake for my mother."],
-["birthday","/ˈbɜːθ.deɪ/","生日","Today is my sister’s birthday."],
-["party","/ˈpɑːr.ti/","聚会","We had a great time at the party."],
-["music","/ˈmjuː.zɪk/","音乐","I like listening to pop music."],
-["dance","/dæns/","跳舞","She can dance very well."],
-["food","/fuːd/","食物","The food smells delicious."],
-["juice","/dʒuːs/","果汁","I drink orange juice every morning."],
-["glass","/ɡlæs/","杯子；玻璃","Be careful! The glass might break."],
-["breakfast","/ˈbrek.fəst/","早餐","We have breakfast at 7 o'clock."]
+  ["window","/ˈwɪn.doʊ/","窗户","Please open the window."],
+  ["car","/kɑːr/","汽车","My father drives a new car."],
+  ["bus","/bʌs/","公共汽车","We go to school by bus."],
+  ["street","/striːt/","街道","There are many shops on this street."],
+  ["shop","/ʃɑːp/","商店","Let's go to the shop and buy some fruit."],
+  ["money","/ˈmʌ.ni/","钱","I don't have enough money."],
+  ["cake","/keɪk/","蛋糕","I made a chocolate cake for my mother."],
+  ["birthday","/ˈbɜːθ.deɪ/","生日","Today is my sister's birthday."],
+  ["party","/ˈpɑːr.ti/","聚会","We had a great time at the party."],
+  ["music","/ˈmjuː.zɪk/","音乐","I like listening to pop music."],
+  ["dance","/dæns/","跳舞","She can dance very well."],
+  ["food","/fuːd/","食物","The food smells delicious."],
+  ["juice","/dʒuːs/","果汁","I drink orange juice every morning."],
+  ["glass","/ɡlæs/","杯子；玻璃","Be careful! The glass might break."],
+  ["breakfast","/ˈbrek.fəst/","早餐","We have breakfast at 7 o'clock."]
 ];
-let i=0;
-function load(){ const d=data[i]; document.getElementById('word').textContent=d[0]; document.getElementById('ipa').textContent=d[1]; document.getElementById('cn').textContent=d[2]; document.getElementById('en').textContent=d[3]; }
-async function speak(text){ try{ const url = "https://translate.google.com/translate_tts?ie=UTF-8&q="+encodeURIComponent(text)+"&tl=en&client=tw-ob"; const r = await fetch(url); const ab=await r.arrayBuffer(); const ctx=new (window.AudioContext||window.webkitAudioContext)(); const buf=await ctx.decodeAudioData(ab); const src=ctx.createBufferSource(); src.buffer=buf; src.connect(ctx.destination); src.start(); return new Promise(res=>src.onended=res); }catch(e){ const u=new SpeechSynthesisUtterance(text); speechSynthesis.speak(u); return new Promise(res=>u.onend=res); } }
-document.getElementById('playWord').addEventListener('click', ()=>speak(data[i][0])); document.getElementById('playSentence').addEventListener('click', ()=>speak(data[i][3])); document.getElementById('next').addEventListener('click', ()=>{ i=(i+1)%data.length; load(); });
-load();
+
+let idx = 0;
+let shuffled = false;
+
+// render current card
+function render(){
+  const d = data[idx];
+  document.getElementById('word').textContent = d[0];
+  document.getElementById('ipa').textContent = d[1];
+  document.getElementById('cn').textContent = d[2];
+  document.getElementById('sentence').textContent = d[3];
+}
+render();
+
+// audio helpers: try Google TTS then fallback to SpeechSynthesis
+async function playViaGoogle(text){
+  try{
+    const url = "https://translate.google.com/translate_tts?ie=UTF-8&q=" + encodeURIComponent(text) + "&tl=en&client=tw-ob";
+    const resp = await fetch(url, {mode:'cors'});
+    if(!resp.ok) throw new Error('no tts');
+    const ab = await resp.arrayBuffer();
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const buf = await ctx.decodeAudioData(ab);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    return new Promise((res)=>{ src.onended = res; src.start(0); });
+  }catch(e){ console.warn('google tts failed', e); return Promise.reject(e); }
+}
+
+function playViaSpeechSynthesis(text){
+  return new Promise((res)=>{
+    try{
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US';
+      const v = speechSynthesis.getVoices().find(v=>v.lang.startsWith('en') && v.name.toLowerCase().includes('female')) || speechSynthesis.getVoices().find(v=>v.lang.startsWith('en')) || null;
+      if(v) u.voice = v;
+      u.rate = 1.0;
+      u.onend = res;
+      speechSynthesis.speak(u);
+    }catch(e){ console.error(e); res(); }
+  });
+}
+
+async function speak(text){
+  try{
+    await playViaGoogle(text);
+  }catch(e){
+    await playViaSpeechSynthesis(text);
+  }
+}
+
+document.getElementById('playWord').addEventListener('click', ()=> speak(data[idx][0]));
+document.getElementById('playSentence').addEventListener('click', ()=> speak(data[idx][3]));
+
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  idx = (idx + 1) % data.length;
+  render();
+});
+
+document.getElementById('shuffle').addEventListener('click', ()=>{
+  for(let i=data.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [data[i],data[j]]=[data[j],data[i]]; }
+  idx = 0; render();
+});
+
+document.getElementById('toggleCn').addEventListener('click', ()=>{
+  const el = document.getElementById('cn');
+  if(el.style.visibility === 'hidden'){ el.style.visibility='visible'; } else { el.style.visibility='hidden'; }
+});
+
+if (typeof speechSynthesis !== 'undefined') {
+  speechSynthesis.onvoiceschanged = ()=>{};
+}
 </script>
 </body>
 </html>
