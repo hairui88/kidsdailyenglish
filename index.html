@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Daily English — Day 2 (15 words)</title>
+<title>Daily English — Day 2 (SpeechSynthesis only)</title>
 <style>
   :root{--blue:#2563eb;--muted:#64748b;--card:#fff;}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial; background:#f8fafc;margin:20px;padding:0;color:#0f172a;}
@@ -22,8 +22,7 @@
   .muted{color:var(--muted);margin-top:12px;font-size:13px;}
   .small{font-size:13px;color:var(--muted);}
   .controls .iconbtn{display:inline-flex;align-items:center;gap:8px;}
-  .top-controls{display:flex;gap:10px;align-items:center;margin-bottom:10px;}
-  .right{margin-left:auto;display:flex;gap:8px;}
+  .highlight{background:#f1f9ff}
 </style>
 </head>
 <body>
@@ -31,8 +30,8 @@
   <header>
     <div class="logo">EN</div>
     <div>
-      <h1>Daily English 🔊 — Day 2 (15 words)</h1>
-      <div class="small">Tap the buttons to hear Word / Sentence. Use Next to move on.</div>
+      <h1>Daily English 🔊 — Day 2 (SpeechSynthesis only)</h1>
+      <div class="small">Uses device's built-in TTS. If no sound, first tap any button to unlock audio on mobile.</div>
     </div>
   </header>
 
@@ -48,12 +47,13 @@
     <div class="controls">
       <button id="playWord" class="iconbtn">🔊 Word</button>
       <button id="playSentence" class="iconbtn">🔊 Sentence</button>
+      <button id="playBoth" class="iconbtn">▶️ Word×3 → Sentence×3</button>
       <button id="toggleCn" class="iconbtn">👁️ Hide/Show 中文</button>
       <button id="nextBtn" class="primary">➡️ Next</button>
       <button id="shuffle" class="iconbtn">🔀 Shuffle</button>
     </div>
 
-    <div class="muted">Tip: Add to home screen on iPad/iPhone for app-like use (iOS: Share → Add to Home Screen).</div>
+    <div class="muted">Tip: On iPhone use Safari; first tap any button to allow audio. Ensure device volume is up and silent mode off.</div>
   </main>
 </div>
 
@@ -77,41 +77,37 @@ const data = [
 ];
 
 let idx = 0;
-let shuffled = false;
 
-// render current card
 function render(){
   const d = data[idx];
   document.getElementById('word').textContent = d[0];
   document.getElementById('ipa').textContent = d[1];
   document.getElementById('cn').textContent = d[2];
   document.getElementById('sentence').textContent = d[3];
+  document.querySelectorAll('.item').forEach(el=>el.classList && el.classList.remove('highlight'));
+  const row = document.querySelector(`[data-index="${idx}"]`);
+  if(row) row.classList.add('highlight');
 }
 render();
 
-// audio helpers: try Google TTS then fallback to SpeechSynthesis
-async function playViaGoogle(text){
-  try{
-    const url = "https://translate.google.com/translate_tts?ie=UTF-8&q=" + encodeURIComponent(text) + "&tl=en&client=tw-ob";
-    const resp = await fetch(url, {mode:'cors'});
-    if(!resp.ok) throw new Error('no tts');
-    const ab = await resp.arrayBuffer();
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const buf = await ctx.decodeAudioData(ab);
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(ctx.destination);
-    return new Promise((res)=>{ src.onended = res; src.start(0); });
-  }catch(e){ console.warn('google tts failed', e); return Promise.reject(e); }
+// choose a likely en-US female voice if available
+function chooseVoice(){
+  const voices = speechSynthesis.getVoices();
+  if(!voices || voices.length===0) return null;
+  // prefer en-US female names
+  let v = voices.find(v=>/en-?us/i.test(v.lang) && /female|female/i.test(v.name));
+  if(!v) v = voices.find(v=>/en-?us/i.test(v.lang));
+  if(!v) v = voices.find(v=>v.lang && v.lang.startsWith('en'));
+  return v || voices[0];
 }
 
-function playViaSpeechSynthesis(text){
-  return new Promise((res)=>{
+function speakOnce(text){
+  return new Promise(res=>{
     try{
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'en-US';
-      const v = speechSynthesis.getVoices().find(v=>v.lang.startsWith('en') && v.name.toLowerCase().includes('female')) || speechSynthesis.getVoices().find(v=>v.lang.startsWith('en')) || null;
+      const v = chooseVoice();
       if(v) u.voice = v;
+      u.lang = 'en-US';
       u.rate = 1.0;
       u.onend = res;
       speechSynthesis.speak(u);
@@ -119,34 +115,29 @@ function playViaSpeechSynthesis(text){
   });
 }
 
-async function speak(text){
-  try{
-    await playViaGoogle(text);
-  }catch(e){
-    await playViaSpeechSynthesis(text);
+async function playRepeated(text, times, gap){
+  for(let i=0;i<times;i++){
+    await speakOnce(text);
+    if(i<times-1) await new Promise(r=>setTimeout(r,gap));
   }
 }
 
-document.getElementById('playWord').addEventListener('click', ()=> speak(data[idx][0]));
-document.getElementById('playSentence').addEventListener('click', ()=> speak(data[idx][3]));
-
-document.getElementById('nextBtn').addEventListener('click', ()=>{
-  idx = (idx + 1) % data.length;
-  render();
+document.getElementById('playWord').addEventListener('click', ()=> playRepeated(data[idx][0], 1, 300));
+document.getElementById('playSentence').addEventListener('click', ()=> playRepeated(data[idx][3], 1, 300));
+document.getElementById('playBoth').addEventListener('click', async ()=>{
+  // word x3 then pause then sentence x3
+  await playRepeated(data[idx][0], 3, 400);
+  await new Promise(r=>setTimeout(r, 1200));
+  await playRepeated(data[idx][3], 3, 900);
 });
 
-document.getElementById('shuffle').addEventListener('click', ()=>{
-  for(let i=data.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [data[i],data[j]]=[data[j],data[i]]; }
-  idx = 0; render();
-});
+document.getElementById('nextBtn').addEventListener('click', ()=>{ idx=(idx+1)%data.length; render(); });
+document.getElementById('shuffle').addEventListener('click', ()=>{ for(let i=data.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [data[i],data[j]]=[data[j],data[i]]; } idx=0; render(); });
+document.getElementById('toggleCn').addEventListener('click', ()=>{ const el=document.getElementById('cn'); el.style.visibility = el.style.visibility==='hidden' ? 'visible' : 'hidden'; });
 
-document.getElementById('toggleCn').addEventListener('click', ()=>{
-  const el = document.getElementById('cn');
-  if(el.style.visibility === 'hidden'){ el.style.visibility='visible'; } else { el.style.visibility='hidden'; }
-});
-
-if (typeof speechSynthesis !== 'undefined') {
-  speechSynthesis.onvoiceschanged = ()=>{};
+// ensure voices are loaded (especially on iOS)
+if(window.speechSynthesis){
+  window.speechSynthesis.onvoiceschanged = ()=>{};
 }
 </script>
 </body>
