@@ -1,102 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-180.png">
-<title>Daily English 🔊 — Day 1</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Day 2 — Point Read</title>
 <style>
-  :root { --fg:#0f172a; --muted:#475569; --primary:#2563eb; }
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, 'Helvetica Neue', sans-serif;
-         color: var(--fg); max-width: 720px; margin: 0 auto; padding: 20px; }
-  header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
-  header h1 { font-size: 20px; margin: 0; }
-  .card { border:1px solid #e2e8f0; border-radius:14px; padding:20px; box-shadow: 0 2px 6px rgba(0,0,0,.04); }
-  .word { font-size: 32px; font-weight: 700; letter-spacing:.2px; }
-  .ipa { font-family: Arial, 'Helvetica Neue', sans-serif; color: var(--muted); margin-top:6px; }
-  .cn { margin-top:6px; color: var(--muted); }
-  .en { margin-top:12px; font-size: 18px; line-height:1.4; }
-  .zh { margin-top:6px; color: var(--muted); }
-  .controls { display:flex; flex-wrap: wrap; gap:10px; margin-top:16px; }
-  button { padding:10px 14px; border-radius:10px; border:1px solid #cbd5e1; background:#fff; font-size:15px; }
-  button.primary { background: var(--primary); color:#fff; border-color: var(--primary); }
-  .muted { color: var(--muted); font-size: 13px; margin-top:8px; }
+body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial;max-width:820px;margin:20px auto;color:#0f172a;}
+.card{border:1px solid #e6eef8;border-radius:12px;padding:18px;margin:12px 0;}
+.word{font-size:32px;font-weight:700;}
+.ipa{font-family:Arial,Helvetica,sans-serif;color:#475569;}
+.controls{display:flex;gap:8px;margin-top:12px;}
+button{padding:8px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;}
 </style>
 </head>
 <body>
-<header>
-  <img src="icon-180.png" width="36" height="36" alt="icon" style="border-radius:8px;border:1px solid #e2e8f0">
-  <h1>Daily English 🔊 — Day 1 (15 words)</h1>
-</header>
-
-<div class="card">
-  <div class="word" id="w"></div>
-  <div class="ipa" id="ipa"></div>
-  <div class="cn" id="cn"></div>
-  <div class="en" id="en"></div>
-  <div class="zh" id="zh"></div>
-
+<h1>Day 2 — Point Read (15 words)</h1>
+<div id="card" class="card">
+  <div class="word" id="word">window</div>
+  <div class="ipa" id="ipa">/ˈwɪn.doʊ/</div>
+  <div class="cn" id="cn">窗户</div>
+  <div class="en" id="en">Please open the window.</div>
   <div class="controls">
-    <button onclick="speak(w.textContent)">🔊 Word</button>
-    <button onclick="speak(en.textContent)">🔊 Sentence</button>
-    <button onclick="toggle()">👁 Hide/Show 中文</button>
-    <button class="primary" onclick="next()">➡️ Next</button>
-    <button onclick="shuffle()">🔀 Shuffle</button>
+    <button id="playWord">🔊 Word</button>
+    <button id="playSentence">🔊 Sentence</button>
+    <button id="next">➡️ Next</button>
   </div>
-  <div class="muted">Tip: 添加到主屏幕 → 像 App 一样使用（iOS：分享 → 添加到主屏幕）。</div>
+  <div class="muted" style="margin-top:8px;color:#64748b">Tip: Add to home screen on iPad/iPhone for app-like use.</div>
 </div>
-
 <script>
-const data = [["apple", "/ˈæp.əl/", "苹果", "I eat an apple every day.", "我每天吃一个苹果。"], ["bag", "/bæɡ/", "书包；袋子", "Put your books in the bag.", "把书放进书包里。"], ["chair", "/tʃeə(r)/", "椅子", "This chair is very comfortable.", "这把椅子很舒服。"], ["door", "/dɔː(r)/", "门", "Please close the door.", "请关上门。"], ["family", "/ˈfæm.əl.i/", "家庭", "My family is very important to me.", "我的家庭对我很重要。"], ["happy", "/ˈhæp.i/", "开心的", "She is very happy today.", "她今天很开心。"], ["learn", "/lɜːn/", "学习", "We learn English at school.", "我们在学校学习英语。"], ["pen", "/pen/", "笔", "Can I borrow your pen?", "我可以借你的笔吗？"], ["school", "/skuːl/", "学校", "They go to school by bus.", "他们坐公交车去学校。"], ["water", "/ˈwɔː.tər/", "水", "Drink more water every day.", "每天要多喝水。"], ["book", "/bʊk/", "书", "This book is very interesting.", "这本书很有趣。"], ["friend", "/frɛnd/", "朋友", "She is my best friend.", "她是我最好的朋友。"], ["teacher", "/ˈtiː.tʃər/", "老师", "Our teacher is very kind.", "我们的老师很和蔼。"], ["morning", "/ˈmɔː.nɪŋ/", "早上", "Good morning, everyone!", "大家早上好！"], ["play", "/pleɪ/", "玩；演奏", "The children play in the park.", "孩子们在公园玩。"]];
-let i = 0;
-let voices = [];
-let voice = null;
-
-function $(id){ return document.getElementById(id); }
-const w = $("w"), ipa=$("ipa"), cn=$("cn"), en=$("en"), zh=$("zh");
-
-function load(){
-  const d = data[i];
-  w.textContent = d[0];
-  ipa.textContent = d[1];
-  cn.textContent = d[2];
-  en.textContent = d[3];
-  zh.textContent = d[4];
-}
-
-function next(){
-  i = (i + 1) % data.length;
-  load();
-}
-
-function shuffle(){
-  for (let j=data.length-1; j>0; j--) {
-    const k = Math.floor(Math.random() * (j+1));
-    [data[j], data[k]] = [data[k], data[j]];
-  }
-  i = 0; load();
-}
-
-function toggle(){
-  cn.style.display = cn.style.display === "none" ? "" : "none";
-  zh.style.display = zh.style.display === "none" ? "" : "none";
-}
-
-function setVoice(){
-  voices = speechSynthesis.getVoices();
-  voice = voices.find(v => v.lang === "en-US" && (v.name.includes("Samantha") || v.name.includes("Joanna") || v.name.includes("Allison") || v.name.includes("Female"))) || voices.find(v => v.lang === "en-US") || null;
-}
-speechSynthesis.onvoiceschanged = setVoice;
-
-function speak(text){
-  const u = new SpeechSynthesisUtterance(text);
-  if (voice) u.voice = voice;
-  u.rate = 0.95;
-  speechSynthesis.speak(u);
-}
-
+const data = [
+["window","/ˈwɪn.doʊ/","窗户","Please open the window."],
+["car","/kɑːr/","汽车","My father drives a new car."],
+["bus","/bʌs/","公共汽车","We go to school by bus."],
+["street","/striːt/","街道","There are many shops on this street."],
+["shop","/ʃɑːp/","商店","Let’s go to the shop and buy some fruit."],
+["money","/ˈmʌ.ni/","钱","I don’t have enough money."],
+["cake","/keɪk/","蛋糕","I made a chocolate cake for my mother."],
+["birthday","/ˈbɜːθ.deɪ/","生日","Today is my sister’s birthday."],
+["party","/ˈpɑːr.ti/","聚会","We had a great time at the party."],
+["music","/ˈmjuː.zɪk/","音乐","I like listening to pop music."],
+["dance","/dæns/","跳舞","She can dance very well."],
+["food","/fuːd/","食物","The food smells delicious."],
+["juice","/dʒuːs/","果汁","I drink orange juice every morning."],
+["glass","/ɡlæs/","杯子；玻璃","Be careful! The glass might break."],
+["breakfast","/ˈbrek.fəst/","早餐","We have breakfast at 7 o'clock."]
+];
+let i=0;
+function load(){ const d=data[i]; document.getElementById('word').textContent=d[0]; document.getElementById('ipa').textContent=d[1]; document.getElementById('cn').textContent=d[2]; document.getElementById('en').textContent=d[3]; }
+async function speak(text){ try{ const url = "https://translate.google.com/translate_tts?ie=UTF-8&q="+encodeURIComponent(text)+"&tl=en&client=tw-ob"; const r = await fetch(url); const ab=await r.arrayBuffer(); const ctx=new (window.AudioContext||window.webkitAudioContext)(); const buf=await ctx.decodeAudioData(ab); const src=ctx.createBufferSource(); src.buffer=buf; src.connect(ctx.destination); src.start(); return new Promise(res=>src.onended=res); }catch(e){ const u=new SpeechSynthesisUtterance(text); speechSynthesis.speak(u); return new Promise(res=>u.onend=res); } }
+document.getElementById('playWord').addEventListener('click', ()=>speak(data[i][0])); document.getElementById('playSentence').addEventListener('click', ()=>speak(data[i][3])); document.getElementById('next').addEventListener('click', ()=>{ i=(i+1)%data.length; load(); });
 load();
 </script>
 </body>
